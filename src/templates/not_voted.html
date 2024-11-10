@@ -1,0 +1,20 @@
+{% extends "index.html" %}
+{% block title %}
+Who has not voted
+{% endblock title %}
+
+{% block page_content %}
+    
+    <div class="container mt-5 form-container" >
+        {% if not_voted %}
+        <p class="display-1">These people have not voted</p>
+            <ol ul class="list-group">
+                {% for voter in not_voted %}
+                    <li class="list-group-item"> {{voter.name}}</li>
+                {% endfor %}
+            </ol>
+        {% else %}
+        <p class="display-1">Everyone has cast their votes</p>
+        {% endif %}
+    </div>
+{% endblock page_content %}

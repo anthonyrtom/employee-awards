@@ -1,0 +1,30 @@
+{% extends "index.html" %}
+{% block title %}
+Voting Page
+{% endblock title %}
+
+{% block page_content %}
+<div class="container mt-5 form-container">
+    <p class="display-1">Please cast your votes for each category</p>
+    <form method="POST" action="{{ url_for('main.voting_page', id=current_user.id) }}">
+        <ol>
+            {% for award in awards %}
+                <li>
+                    <div class="form-group">
+                        <label for="award_{{ award.id }}">{{ award.name }}</label>
+                        <select name="award_{{ award.id }}" id="award_{{ award.id }}" class="form-control">
+                            <option value="">Select Nominee</option>
+                            {% for nominee in nominees %}
+                                <option value="{{ nominee.id }}">{{ nominee.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </li>
+            {% endfor %}
+        </ol>
+
+        <button type="submit" class="btn btn-primary">Submit Votes</button>
+    </form>
+</div>
+
+{% endblock page_content %}

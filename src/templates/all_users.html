@@ -1,0 +1,16 @@
+{% extends "index.html" %}
+{% block title %}
+All Users
+{% endblock title %}
+
+{% block page_content %}
+    
+    <div class="container mt-5 form-container" >
+        <p class="display-1">These are all users</p>
+            <ol ul class="list-group">
+                {% for user in all_users %}
+                    <li class="list-group-item"> {{user.name}}: {{user.email}}</li>
+                {% endfor %}
+            </ol>
+    </div>
+{% endblock page_content %}

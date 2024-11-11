@@ -20,7 +20,7 @@ def index():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = Employee.query.filter_by(email=form.email.data.lower()).first()
+        user = Employee.query.filter_by(email=form.email.data).first()
 
         if user and user.verify_password(form.password.data):
             next_page = request.args.get("next")
@@ -135,3 +135,10 @@ def award_winners():
             }
 
     return render_template('award_winners.html', award_winners=award_winners)
+
+
+@main.route('/all-users')
+@login_required
+def get_all_user_details():
+    all_users = Employee.query.all()
+    return render_template("all_users.html", all_users=all_users)

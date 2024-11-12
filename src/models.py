@@ -9,6 +9,7 @@ class Employee(UserMixin, db.Model):
     email = db.Column(db.String(64), unique=True, nullable=False)
     is_staff = db.Column(db.Boolean, default=False)
     has_not_voted = db.Column(db.Boolean, default=True)
+    department = db.Column(db.String(100))  # New department column
     password_hash = db.Column(db.String(256))
     votes = db.relationship('Vote', backref='voter', lazy=True)
 
@@ -17,7 +18,7 @@ class Employee(UserMixin, db.Model):
 
     @property
     def password(self):
-        raise AttributeError("Password can not be seen")
+        raise AttributeError("Password cannot be seen")
 
     @password.setter
     def password(self, password):
@@ -28,6 +29,7 @@ class Award(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
     description = db.Column(db.Text)
+    is_department_specific = db.Column(db.Boolean, default=False)
     votes = db.relationship('Vote', backref='award', lazy=True)
 
 
@@ -36,8 +38,6 @@ class Vote(db.Model):
     employee_id = db.Column(db.Integer, db.ForeignKey(
         'employee.id'), nullable=False)
     award_id = db.Column(db.Integer, db.ForeignKey('award.id'), nullable=False)
-    # unique_constraint = db.UniqueConstraint(
-    #     'employee_id', 'award_id', name='unique_vote')
 
 
 @login_manager.user_loader

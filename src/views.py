@@ -82,40 +82,88 @@ def voting_page(id):
     return render_template("voting_page.html", awards=awards, nominees=nominees)
 
 
+# @main.route('/award-winners')
+# @login_required
+# @staff_required
+# def award_winners():
+#     award_winners = {}
+
+#     # Calculate winners for each award, considering department specificity
+#     awards = Award.query.all()
+#     for award in awards:
+#         query = db.session.query(Employee, func.count(Vote.id).label(
+#             'vote_count')).join(Vote).filter(Vote.award_id == award.id)
+
+#         if award.is_department_specific:
+#             departments = db.session.query(
+#                 Employee.department).distinct().all()
+#             for department in departments:
+#                 department_winners = query.filter(Employee.department == department[0]).group_by(
+#                     Employee.id).order_by(func.count(Vote.id).desc()).first()
+#                 if department_winners:
+#                     award_winners[f"{award.name} ({department[0]})"] = {
+#                         "winners": [department_winners.Employee.name],
+#                         "vote_count": department_winners.vote_count
+#                     }
+#                 else:
+#                     award_winners[f"{award.name} ({department[0]})"] = {
+#                         "winners": ["No votes cast"],
+#                         "vote_count": 0
+#                     }
+#         else:
+#             winner = query.group_by(Employee.id).order_by(
+#                 func.count(Vote.id).desc()).first()
+#             award_winners[award.name] = {
+#                 "winners": [winner.Employee.name] if winner else ["No votes cast"],
+#                 "vote_count": winner.vote_count if winner else 0
+#             }
+
+#     return render_template('award_winners.html', award_winners=award_winners)
+
 @main.route('/award-winners')
 @login_required
 @staff_required
 def award_winners():
+    # Dictionary to store winners for each award
     award_winners = {}
 
-    # Calculate winners for each award, considering department specificity
+    # Loop over each award and calculate the winner(s)
     awards = Award.query.all()
     for award in awards:
-        query = db.session.query(Employee, func.count(Vote.id).label(
-            'vote_count')).join(Vote).filter(Vote.award_id == award.id)
+        # Get the highest vote count for any employee for this award
+        highest_vote_count_query = (
+            db.session.query(func.count(Vote.id).label('vote_count'))
+            .join(Employee)
+            .filter(Vote.award_id == award.id)
+            .group_by(Employee.id)
+            .order_by(func.count(Vote.id).desc())
+            .all()
+        )
 
-        if award.is_department_specific:
-            departments = db.session.query(
-                Employee.department).distinct().all()
-            for department in departments:
-                department_winners = query.filter(Employee.department == department[0]).group_by(
-                    Employee.id).order_by(func.count(Vote.id).desc()).first()
-                if department_winners:
-                    award_winners[f"{award.name} ({department[0]})"] = {
-                        "winners": [department_winners.Employee.name],
-                        "vote_count": department_winners.vote_count
-                    }
-                else:
-                    award_winners[f"{award.name} ({department[0]})"] = {
-                        "winners": ["No votes cast"],
-                        "vote_count": 0
-                    }
-        else:
-            winner = query.group_by(Employee.id).order_by(
-                func.count(Vote.id).desc()).first()
+        if highest_vote_count_query:
+            # Extract the highest vote count
+            highest_vote_count = highest_vote_count_query[0].vote_count
+
+            # Get all employees with the highest vote count for this award
+            winners = (
+                db.session.query(Employee)
+                .join(Vote)
+                .filter(Vote.award_id == award.id)
+                .group_by(Employee.id)
+                .having(func.count(Vote.id) == highest_vote_count)
+                .all()
+            )
+
+            # Add the winners to the award_winners dictionary
             award_winners[award.name] = {
-                "winners": [winner.Employee.name] if winner else ["No votes cast"],
-                "vote_count": winner.vote_count if winner else 0
+                "winners": [winner.name for winner in winners],
+                "vote_count": highest_vote_count
+            }
+        else:
+            # If no votes were cast for this award
+            award_winners[award.name] = {
+                "winners": ["No votes cast"],
+                "vote_count": 0
             }
 
     return render_template('award_winners.html', award_winners=award_winners)

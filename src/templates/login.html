@@ -3,6 +3,15 @@
 Login
 {% endblock title %}
 
+{% block flash_message %}
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endblock flash_message %}
+
 {% block page_content %}
     
     <div class="container mt-5 form-container" >

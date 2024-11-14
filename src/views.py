@@ -26,12 +26,12 @@ def login():
         if user and user.verify_password(form.password.data):
             next_page = request.args.get("next")
             login_user(user, form.remember_me.data)
-            flash("You have been logged in")
+            flash("You have been logged in", "info")
 
             if not next_page or not next_page.startswith("/"):
                 next_page = url_for("main.index")
             return redirect(next_page)
-        flash("Wrong email or password")
+        flash("Wrong email or password", "danger")
     form.email.data = ""
     form.password.data = ""
     return render_template("login.html", form=form)
@@ -49,7 +49,7 @@ def not_voted():
 @login_required
 def logout():
     logout_user()
-    flash("You have been logged out")
+    flash("You have been logged out", "info")
     return redirect(url_for('main.index'))
 
 
@@ -76,7 +76,7 @@ def voting_page(id):
         # Mark the user as having voted
         user.has_not_voted = False
         db.session.commit()
-        flash("Your votes have been recorded successfully!", "success")
+        flash("Your votes have been recorded successfully!", "info")
         return redirect(url_for('main.index'))
 
     return render_template("voting_page.html", awards=awards, nominees=nominees)

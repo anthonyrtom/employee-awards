@@ -9,11 +9,11 @@ Voting Page
     <form method="POST" action="{{ url_for('main.voting_page', id=current_user.id) }}">
         <ol>
             {% for award in awards %}
-                <li>
-                    <div class="form-group">
+                <li class="fw-bold">
+                    <div class="form-group m-2">
                         <label for="award_{{ award.id }}">{{ award.name }}</label>
-                        <select name="award_{{ award.id }}" id="award_{{ award.id }}" class="form-control">
-                            <option value="">Select Nominee</option>
+                        <select name="award_{{ award.id }}" id="award_{{ award.id }}" class="form-control m-2">
+                            <option value="" disabled selected>Select Nominee</option>
                             {% for nominee in nominees %}
                                 <option value="{{ nominee.id }}">{{ nominee.name }}</option>
                             {% endfor %}
